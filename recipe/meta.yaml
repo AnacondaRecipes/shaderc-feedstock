@@ -1,13 +1,15 @@
+{% set name = "shaderc" %}
 {% set version = "2025.5" %}
 
 package:
-  name: shaderc
+  name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  url: https://github.com/google/shaderc/archive/v{{ version }}.tar.gz
+  url: https://github.com/google/{{ name }}/archive/v{{ version }}.tar.gz
   sha256: fca5041b1fdea6daba167b63e04e55e5059fab40828342126169336643445447
   patches:
+    - patches/0001-fix-tests.patch
     - patches/0001-Update-build-version-generation.patch
     - patches/0002-Update-the-location-of-SPRV-headers.patch
     - patches/0003-Update-thirdparty-dependency-resolution.patch
@@ -22,17 +24,19 @@ build:
 
 requirements:
   build:
-    # If your project compiles code (such as a C extension) then add the required compilers as separate entries here.
-    # Compilers are named 'c', 'cxx' and 'fortran'.
-    - {{ compiler('c') }}
     - {{ stdlib("c") }}
+    - {{ compiler('c') }}
     - {{ compiler('cxx') }}
+    - python
     - cmake
-    - make                                   # [unix]
+    - make        # [unix]
+    - ninja-base  # [win]
   host:
     - spirv-tools
     - spirv-headers
     - glslang
+    - gtest
+    - gmock
 
 test:
   commands:
@@ -43,10 +47,13 @@ test:
 
 about:
   home: https://github.com/google/shaderc
-  summary: A collection of tools, libraries and tests for shader compilation
   license: Apache-2.0
   license_family: Apache
   license_file: LICENSE
+  summary: A collection of tools, libraries and tests for shader compilation
+  description: A collection of tools, libraries and tests for shader compilation
+  dev_url: https://github.com/google/shaderc
+  doc_url: https://github.com/google/shaderc
 
 extra:
   recipe-maintainers:
