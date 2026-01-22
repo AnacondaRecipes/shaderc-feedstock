@@ -1,0 +1,101 @@
+From e1f0ed2c6bf5ffda60907fd925c18bdbc13cac47 Mon Sep 17 00:00:00 2001
+From: Ivan Iziumov <iiziumov@anaconda.com>
+Date: Thu, 22 Jan 2026 12:08:06 +0100
+Subject: [PATCH] fix tests
+
+---
+ cmake/utils.cmake              |  7 +++----
+ glslc/test/CMakeLists.txt      |  5 ++++-
+ libshaderc_util/CMakeLists.txt |  3 ++-
+ third_party/CMakeLists.txt     | 17 ++---------------
+ 4 files changed, 11 insertions(+), 21 deletions(-)
+
+diff --git a/cmake/utils.cmake b/cmake/utils.cmake
+index b2489d9..b37b734 100644
+--- a/cmake/utils.cmake
++++ b/cmake/utils.cmake
+@@ -15,10 +15,9 @@
+ # utility functions
+ 
+ function (shaderc_use_gmock TARGET)
+-  target_include_directories(${TARGET} PRIVATE
+-    ${gmock_SOURCE_DIR}/include
+-    ${gtest_SOURCE_DIR}/include)
+-  target_link_libraries(${TARGET} PRIVATE gmock gtest_main)
++  find_package(GTest REQUIRED)
++
++  target_link_libraries(${TARGET} PRIVATE GTest::gtest GTest::gtest_main)
+ endfunction(shaderc_use_gmock)
+ 
+ function(shaderc_default_c_compile_options TARGET)
+diff --git a/glslc/test/CMakeLists.txt b/glslc/test/CMakeLists.txt
+index c5ec689..ac49c62 100644
+--- a/glslc/test/CMakeLists.txt
++++ b/glslc/test/CMakeLists.txt
+@@ -21,13 +21,16 @@ if(${SHADERC_ENABLE_TESTS})
+           COMMAND ${Python_EXECUTABLE} -m unittest glslc_test_framework_unittest.py
+           WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+ 
++  find_package(SPIRV-Tools REQUIRED)
++  find_program(SPIRV_DIS spirv-dis REQUIRED)
++
+   # These tests use the glslc executable, so they can only run if
+   # glslc has been built.
+   if(${SHADERC_ENABLE_EXECUTABLES})
+     add_test(NAME glslc_tests
+       COMMAND ${Python_EXECUTABLE}
+       ${CMAKE_CURRENT_SOURCE_DIR}/glslc_test_framework.py
+-      $<TARGET_FILE:glslc_exe> $<TARGET_FILE:spirv-dis>
++      $<TARGET_FILE:glslc_exe> ${SPIRV_DIS}
+       --test-dir ${CMAKE_CURRENT_SOURCE_DIR})
+   endif()
+ 
+diff --git a/libshaderc_util/CMakeLists.txt b/libshaderc_util/CMakeLists.txt
+index 69ba519..778848f 100644
+--- a/libshaderc_util/CMakeLists.txt
++++ b/libshaderc_util/CMakeLists.txt
+@@ -45,8 +45,9 @@ target_include_directories(shaderc_util
+ add_definitions(-DENABLE_HLSL)
+ 
+ find_package(Threads)
+-target_link_libraries(shaderc_util PRIVATE
++target_link_libraries(shaderc_util PUBLIC
+   glslang SPIRV
++  SPIRV-Tools
+   SPIRV-Tools-opt ${CMAKE_THREAD_LIBS_INIT})
+ 
+ shaderc_add_tests(
+diff --git a/third_party/CMakeLists.txt b/third_party/CMakeLists.txt
+index d44f62a..2de1b9a 100644
+--- a/third_party/CMakeLists.txt
++++ b/third_party/CMakeLists.txt
+@@ -24,24 +24,11 @@ set( SKIP_GLSLANG_INSTALL ${SHADERC_SKIP_INSTALL} )
+ set( SKIP_SPIRV_TOOLS_INSTALL ${SHADERC_SKIP_INSTALL} )
+ set( SKIP_GOOGLETEST_INSTALL ${SHADERC_SKIP_INSTALL} )
+ 
+-# Configure third party projects.
+-if(${SHADERC_ENABLE_TESTS})
+-  if (IS_DIRECTORY ${SHADERC_GOOGLE_TEST_DIR})
+-    add_subdirectory(${SHADERC_GOOGLE_TEST_DIR} googletest)
+-  endif()
+-  if (NOT TARGET gmock)
+-    message(FATAL_ERROR "gmock was not found - required for tests")
+-  endif()
+-endif()
+-
+ set(OLD_PLATFORM_TOOLSET ${CMAKE_GENERATOR_TOOLSET})
+ check_cxx_compiler_flag(-fPIC COMPILER_SUPPORTS_PIC)
+ 
+-
+-if (IS_DIRECTORY ${SHADERC_SPIRV_HEADERS_DIR})
+-  set(SPIRV_HEADERS_SKIP_EXAMPLES ON)
+-  add_subdirectory(${SHADERC_SPIRV_HEADERS_DIR} spirv-headers)
+-endif()
++find_package(SPIRV-Tools REQUIRED)
++find_package(SPIRV-Headers REQUIRED)
+ 
+ if (NOT TARGET SPIRV-Tools)
+   # Check SPIRV-Tools before glslang so that it is linked into glslang.
+-- 
+2.50.1 (Apple Git-155)
+
