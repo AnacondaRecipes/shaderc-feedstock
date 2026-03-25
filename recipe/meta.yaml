@@ -17,7 +17,7 @@ source:
     - patches/0005-Only-install-shared-libraries.patch
 
 build:
-  number: 0
+  number: 1
   run_exports:
     # This is kinda annoying, the SO version is not related to the version
     - {{ pin_subpackage('shaderc', max_pin='x.x') }}
@@ -32,8 +32,8 @@ requirements:
     - make        # [unix]
     - ninja-base  # [win]
   host:
-    - spirv-tools
-    - spirv-headers
+    - spirv-tools 2026.1
+    - spirv-headers 1.4.341.0
     - glslang
     - gtest
     - gmock
