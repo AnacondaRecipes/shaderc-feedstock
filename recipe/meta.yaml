@@ -1,5 +1,5 @@
 {% set name = "shaderc" %}
-{% set version = "2025.5" %}
+{% set version = "2026.4" %}
 
 package:
   name: {{ name }}
@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://github.com/google/{{ name }}/archive/v{{ version }}.tar.gz
-  sha256: fca5041b1fdea6daba167b63e04e55e5059fab40828342126169336643445447
+  sha256: f06ce5bcca94e5df7f34e115743597d0ad2e13c5fe9213c67dc8c76031241947
   patches:
     - patches/0001-fix-tests.patch
     - patches/0001-Update-build-version-generation.patch
@@ -17,7 +17,7 @@ source:
     - patches/0005-Only-install-shared-libraries.patch
 
 build:
-  number: 2
+  number: 0
   run_exports:
     # This is kinda annoying, the SO version is not related to the version
     - {{ pin_subpackage('shaderc', max_pin='x.x') }}
@@ -29,7 +29,7 @@ requirements:
     - {{ compiler('cxx') }}
     - python
     - cmake
-    - make        # [unix]
+    - make  # [unix]
     - ninja-base  # [win]
   host:
     - spirv-tools 2026.1
@@ -40,9 +40,9 @@ requirements:
 
 test:
   commands:
-    - test -f ${PREFIX}/lib/libshaderc${SHLIB_EXT}                # [unix]
-    - if not exist %PREFIX%\\Library\\bin\\shaderc.dll exit 1     # [win]
-    - if not exist %PREFIX%\\Library\\lib\\shaderc.lib exit 1     # [win]
+    - test -f ${PREFIX}/lib/libshaderc${SHLIB_EXT}  # [unix]
+    - if not exist %PREFIX%\\Library\\bin\\shaderc.dll exit 1  # [win]
+    - if not exist %PREFIX%\\Library\\lib\\shaderc.lib exit 1  # [win]
     - glslc --help
 
 about:
