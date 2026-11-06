@@ -1,17 +1,17 @@
-From 9c8e4212e4378e29db0b055388c9d9881f57534b Mon Sep 17 00:00:00 2001
+From c6454c0fd0ac6b49bd20a357e98ad180cf474a78 Mon Sep 17 00:00:00 2001
 From: Mark Harfouche <mark.harfouche@gmail.com>
-Date: Sun, 23 Mar 2025 18:39:48 -0400
+Date: Thu, 16 Jul 2026 20:45:20 -0400
 Subject: [PATCH 3/5] Update thirdparty dependency resolution
 
 ---
- third_party/CMakeLists.txt | 60 ++------------------------------------
- 1 file changed, 2 insertions(+), 58 deletions(-)
+ third_party/CMakeLists.txt | 66 ++------------------------------------
+ 1 file changed, 2 insertions(+), 64 deletions(-)
 
 diff --git a/third_party/CMakeLists.txt b/third_party/CMakeLists.txt
-index d44f62a..1224370 100644
+index 9e9d8b1..1224370 100644
 --- a/third_party/CMakeLists.txt
 +++ b/third_party/CMakeLists.txt
-@@ -43,64 +43,8 @@ if (IS_DIRECTORY ${SHADERC_SPIRV_HEADERS_DIR})
+@@ -43,70 +43,8 @@ if (IS_DIRECTORY ${SHADERC_SPIRV_HEADERS_DIR})
    add_subdirectory(${SHADERC_SPIRV_HEADERS_DIR} spirv-headers)
  endif()
  
@@ -28,6 +28,11 @@ index d44f62a..1224370 100644
 -      set(ABSL_INTERNAL_AT_LEAST_CXX17 ON)
 -      set(ABSL_PROPAGATE_CXX_STD ON)
 -      set(ABSL_ENABLE_INSTALL ON)
+-      if (BUILD_SHARED_LIBS)
+-        set(ABSL_MSVC_STATIC_RUNTIME OFF)
+-      else()
+-        set(ABSL_MSVC_STATIC_RUNTIME ON)
+-      endif()
 -      add_subdirectory(${SHADERC_ABSL_DIR} absl EXCLUDE_FROM_ALL)
 -
 -      # re2 tests take a long time and do not add much value, since re2 is a
@@ -60,6 +65,7 @@ index d44f62a..1224370 100644
 -      set(GLSLANG_TESTS ON)
 -    endif()
 -    set(GLSLANG_ENABLE_INSTALL $<NOT:${SKIP_GLSLANG_INSTALL}>)
+-    set(ENABLE_HLSL "${SHADERC_ENABLE_HLSL}")
 -    add_subdirectory(${SHADERC_GLSLANG_DIR} glslang)
 -  endif()
 -  if (NOT TARGET glslang)
@@ -78,6 +84,3 @@ index d44f62a..1224370 100644
  
  if (SHADERC_ENABLE_WGSL_OUTPUT)
    # Use Google Tint for WGSL output.
--- 
-2.43.0
-
